@@ -1,73 +1,79 @@
 # Smart Fleet Participation in FCR - Project Report
 
-## 1. Project Overview
-This project simulates the participation of an Electric Vehicle (EV) fleet in the Frequency Containment Reserve (FCR) market. The goal is to evaluate the technical feasibility and economic viability of using Vehicle-to-Grid (V2G) technology for grid ancillary services.
+This report analyzes the technical and economic feasibility of an Electric Vehicle (EV) fleet participating in the Primary Frequency Control (FCR) market in France.
 
-The simulation covers **January 2021** with a time resolution of **10 seconds**, utilizing real driving session data and frequency deviation measurements.
+## Q1: Frequency & Reduced Regulating Power
 
-## 2. Methodology
+**Question:** Plot the distribution of the reduced regulating power $y_{red}$ expected by the TSO.
 
-### 2.1 Data Sources
-- **Driving Data:** `driving_sessions.csv` containing trip logs for 151 unique EVs.
-- **Frequency Data:** `france_2019_05.csv` (tiled to cover Jan 2021). Values converted from mHz to Hz.
-- **OBC Efficiency:** `obc_efficiency.csv`, modeling non-linear charger efficiency.
-- **Battery Parameters:** Assumed 40 kWh capacity per EV.
-- **Economic Parameters:**
-  - FCR Capacity Payment: **18 EUR/MW/h**
-  - Battery Cost: **150 EUR/kWh**
-  - Cycle Life: **3000 cycles**
+The reduced regulating power is defined as:
+$$ y_{red}(t) = \frac{P_{RE}(t)}{P_{bid}} = 5 \times (f(t) - 50) $$
 
-### 2.2 Simulation Logic
-- **Time Domain:** January 1, 2021 to January 31, 2021 (10s steps).
-- **Fleet Availability:** Cars are available for V2G only when parked and connected to an AC charger (7kW).
-  - **AC/DC Logic:** If the energy required for the *next trip* can be replenished within the parking duration using 7kW AC, the car uses AC (V2G enabled). Otherwise, it uses DC fast charging (V2G disabled).
-- **Power Calculation:**
-  - Bid Capacity ($P_{bid}$): Sum of available cars $\times (P_{max} / 1.1)$.
-  - Regulation Power ($P_{RE}$): $5 \times P_{bid} \times (f - 50)$.
-- **Strategies Evaluated:**
-  1.  **Uniform Strategy:** $P_{RE}$ is distributed evenly among all available cars. Efficiency is calculated per car based on its partial load.
-  2.  **Smart Strategy (Unified):** The fleet is modeled as a unified battery. The dispatcher concentrates power requests to minimize the number of active chargers, operating them closer to peak efficiency (7kW).
+Using the frequency data for January 2021 (tiled from May 2019 data), the distribution is shown below:
 
-## 3. Analysis & Results
+![Reduced Power Distribution](images/q1_reduced_power_dist.png)
 
-### 3.1 Initial Analysis
-- **Frequency Distribution:** The frequency deviation is centered around 0 Hz, typical of a stable grid.
-- **Fleet Availability:** The number of connected EVs varies throughout the day, influencing the FCR bid capacity.
-- **Theoretical Drift:** The integral of frequency deviation shows the theoretical energy drift of a battery performing FCR without correction.
+## Q2: Magnitude Observations
 
-![Fleet Availability](images/fleet_availability.png)
-*Figure 1: Fleet Availability (Number of AC-connected EVs)*
+**Question:** What observation can you make regarding the magnitude of the regulating power?
 
-### 3.2 Simulation Performance
-The simulation was executed using vectorized operations (NumPy/Pandas) to ensure performance (runtime < 30s for 2.6M data points).
+**Observation:**
+The distribution of the reduced regulating power is centered around 0 p.u., reflecting the stable nature of the grid frequency which oscillates around 50 Hz.
+*   **Range:** The signal rarely reaches the maximum limits ($\pm 1$ p.u.). The maximum observed positive deviation is approximately **+0.65 p.u.** and the minimum is **-0.55 p.u.**
+*   **Implication:** The EV battery is rarely requested to deliver its full power ($P_{max}$). Most of the time, the power request is low (< 0.2 p.u.), which implies that without specific management, the chargers (OBC) might operate in low-efficiency regions.
 
-- **Uniform Strategy:** Distributed low-power operations resulted in lower charger efficiency (avg ~90-93%).
-- **Smart Strategy:** Concentrating power allowed operations near peak efficiency (~97%).
+## Q3: SOC Deviation (Rolling Windows)
 
-![Aggregate Energy](images/sim_aggregate_energy.png)
-*Figure 2: Aggregate Fleet Energy Evolution (Uniform vs Smart vs Base)*
+**Question:** Plot the SOC deviation induced by FCR for rolling windows of 4h, 8h, 12h, and 24h.
 
-### 3.3 Economic Assessment
+Assuming a single vehicle with a 40 kWh battery and 7 kW charger ($P_{bid} \approx 6.4$ kW), the energy drift (integral of power) over different time windows is analyzed:
 
-The economic analysis compares the revenue generated from FCR capacity payments against the "Virtual Mileage" cost (battery degradation due to cycling).
+![Rolling SOC Deviation](images/q3_rolling_soc_deviation.png)
 
-**Parameters:**
-- Aging Cost Factor: ~0.025 EUR/kWh of throughput.
+*   **4h Window:** Deviations are small, typically within $\pm 2.3$ kWh.
+*   **24h Window:** Deviations can reach up to **-7.44 kWh** (discharge) or **+6.45 kWh** (charge).
 
-**Results (January 2021):**
+## Q4: Feasibility for EVs
+
+**Question:** Is it reasonable for an EV to participate in FCR for these periods?
+
+**Conclusion:** **Yes, it is reasonable**, but with conditions.
+*   **Capacity:** A deviation of ~7.5 kWh represents approximately **19%** of a standard 40 kWh battery capacity.
+*   **Constraints:** As long as the EV does not arrive with a very low State of Charge (< 20%) or extremely high SOC (> 80%), it can sustain a 24-hour service session without hitting energy limits.
+*   **Management:** For longer durations, an energy management strategy (restoration) would be required to prevent the SOC from drifting too close to the boundaries.
+
+## Q5: Uniform Strategy Efficiency
+
+**Question:** Compute the average efficiency of the fleet with the "Uniform" strategy.
+
+In the **Uniform Strategy**, the total power request is distributed evenly among all available vehicles ($P_{car} = P_{total} / N$). Since the average power request is low, individual chargers often operate at partial load where efficiency is poor.
+
+*   **Average Efficiency ($\eta_{uniform}$):** **86.87%**
+
+## Q6: Smart Strategy & Limits
+
+**Question:** What is the limit of average efficiency $\eta_{smart}^{\infty}$? What is the minimum number of EVs $N_0$ for 90% benefits?
+
+**Smart Strategy:**
+This strategy minimizes conversion losses by concentrating the power request on a minimal number of vehicles operating near their optimal efficiency point ($P_{opt} \approx 4.7$ kW to $7.0$ kW), while keeping the rest of the fleet idle.
+
+**Results:**
+*   **Efficiency Limit ($\eta_{smart}^{\infty}$):** **97.23%** (Theoretical max efficiency of the charger).
+*   **Convergence:** The efficiency improves rapidly as the fleet size $N$ increases.
+*   **$N_0$ (90% Benefit):** **5 EVs**.
+    *   With just 5 vehicles available, the aggregator can achieve an average efficiency of **96.31%**, capturing most of the theoretical gain.
+
+![Efficiency Convergence](images/q6_efficiency_convergence.png)
+
+## Summary of Economics (Jan 2021)
+
+While efficiency is a key technical metric, the economic viability depends on revenue vs. battery aging costs.
 
 | Metric | Uniform Strategy | Smart Strategy |
 | :--- | :--- | :--- |
 | **Total Revenue** | **11,118.55 EUR** | **11,118.55 EUR** |
-| Energy Throughput | 51,728 kWh | 48,738 kWh |
-| Aging Cost | 1,293.21 EUR | 1,218.45 EUR |
-| **Net Profit** | **9,825.35 EUR** | **9,900.10 EUR** |
+| Energy Throughput | 51,728 kWh | 48,719 kWh |
+| Aging Cost | 1,293.21 EUR | 1,217.96 EUR |
+| **Net Profit** | **9,825.35 EUR** | **9,900.59 EUR** |
 
-### 4. Key Findings
-1.  **Profitability:** FCR participation is highly profitable for this fleet. Revenue exceeds aging costs by a factor of ~8-9.
-2.  **Smart Strategy Benefits:** By optimizing for charger efficiency, the Smart Strategy reduces energy throughput losses (and thus aging costs) by approximately **6%**, leading to higher net profit.
-3.  **Feasibility:** The fleet maintains sufficient SOC levels (as seen in the aggregate plots) to perform the service while meeting driving requirements.
-
-## 5. Artifacts
-- Source Code: `fcr_simulation.py`
-- Images: `images/` directory
+The **Smart Strategy** reduces energy throughput by ~6% due to better efficiency, resulting in lower aging costs and slightly higher profits.
