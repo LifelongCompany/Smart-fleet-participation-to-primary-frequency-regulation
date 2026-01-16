@@ -1,0 +1,11 @@
+Q5 Uniform Efficiency: 0.8687
+Q6 Smart Limit Efficiency: 0.9723
+Q6 N0 (90% benefit): 5
+Q6 P_opt: 4.72 kW
+--------------------
+Economics (Jan 2021):
+Total Revenue: 11118.55 EUR
+Uniform Profit: 9825.35 EUR (Cost: 1293.21)
+Smart Profit: 9900.59 EUR (Cost: 1217.96)
+Uniform Throughput: 51728.24 kWh
+Smart Throughput: 48718.56 kWh
