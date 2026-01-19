@@ -24,7 +24,8 @@ class SimulationCore:
         f_val = self.f_dev.values
         required = len(self.sim_index)
         tiled_f = np.resize(f_val, required)
-        self.y_red = 5.0 * tiled_f
+        # Q1/Q3: Limit reduced power to [-1, 1] (equivalent to f_dev >= 0.2Hz)
+        self.y_red = np.clip(5.0 * tiled_f, -1.0, 1.0)
 
         # Physics Params
         self.BATTERY_CAP = 46.0 # kWh
