@@ -18,7 +18,7 @@ def save_plot(name):
 def generate_report_data():
     print("Initializing Core...")
     # Reduced simulation duration to 5 days to ensure completion within constraints
-    sim_end_date = '2021-01-05 23:59:50'
+    sim_end_date = '2021-12-31 23:59:50'
     sim = SimulationCore(output_dir=OUTPUT_DIR, sim_end=sim_end_date)
 
     # ==========================================
@@ -71,7 +71,7 @@ def generate_report_data():
         # rolling sum of Power * dt
         e_rolling = p_series.rolling(window=steps).sum() * dt_h
         # Convert to SOC deviation %
-        soc_dev = e_rolling / 40.0 * 100.0
+        soc_dev = e_rolling / 46.0 * 100.0
         soc_dev = soc_dev.dropna().values
         data_q3.append(soc_dev)
         labels_q3.append(f"{w}h")
