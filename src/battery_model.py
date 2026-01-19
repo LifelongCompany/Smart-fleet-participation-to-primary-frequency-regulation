@@ -3,8 +3,22 @@ import numpy as np
 def solve_current(power_watts, ocv_volts, r_ohms):
     """
     Solves for current I (Amps) given Power P (Watts).
-    Model: P = (OCV - R*I) * I
+    Model: P = V_term * I = (OCV - R*I) * I
     Convention: P > 0 is Discharge, P < 0 is Charge.
+
+    Q15 Derivation:
+    The battery equivalent circuit (Thevenin) equation is:
+       V_term = OCV - R * I   (Discharge direction)
+    Power P is defined at terminals:
+       P = V_term * I
+    Substitute V_term:
+       P = (OCV - R * I) * I
+       P = OCV * I - R * I^2
+    Rearrange to quadratic form for I:
+       R * I^2 - OCV * I + P = 0
+    Solve using quadratic formula:
+       I = (OCV - sqrt(OCV^2 - 4 * R * P)) / (2 * R)
+    (We choose the minus sign for the root so that P=0 implies I=0)
 
     Returns: Current I (Amps).
              Returns NaN if power is too high (complex root).
