@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 SIM_START_STR = '2021-01-01 00:00:00'
 SIM_END_STR = '2021-01-31 23:59:50'
 FREQ_STEP_SEC = 10
-BATTERY_CAPACITY_KWH = 40  # Assumed generic EV capacity (e.g., Renault Zoe)
+BATTERY_CAPACITY_KWH = 46.0  # Assumed generic EV capacity (e.g., Renault Zoe)
 AC_CHARGER_KW = 7.0
 FCR_GAIN_FACTOR = 1.1 # 1.1 (safety margin?)
 K_FACTOR = 5.0 # Hz^-1

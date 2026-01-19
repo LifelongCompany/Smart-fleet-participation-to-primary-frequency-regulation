@@ -1,0 +1,1 @@
+{'start_year_avg': np.float64(44.958333333333336), 'end_year_avg': np.float64(67.66666666666667), 'q10_comment': 'Comparison showing potential boundary effects or seasonal drift.'}

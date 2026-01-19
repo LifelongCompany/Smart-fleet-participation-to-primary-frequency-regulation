@@ -18,7 +18,7 @@ def save_plot(name):
 def generate_report_data():
     print("Initializing Core...")
     # Reduced simulation duration to 5 days to ensure completion within constraints
-    sim_end_date = '2021-12-31 23:59:50'
+    sim_end_date = '2021-01-05 23:59:50'
     sim = SimulationCore(output_dir=OUTPUT_DIR, sim_end=sim_end_date)
 
     # ==========================================
@@ -44,7 +44,7 @@ def generate_report_data():
     # Q2: Comments (in README)
 
     # Q3: Single EV Rolling SOC
-    # Simulate single EV with 40kWh, 7kW.
+    # Simulate single EV with 46kWh, 7kW.
     # P(t) = 7kW * y_red(t).
     # E(t) = Integral P(t) dt.
     dt_h = sim.dt_h

@@ -39,7 +39,7 @@ def run_q1_q4_analysis(output_dir='images'):
     P_MAX = 7.0 # kW
     FCR_GAIN = 1.1
     P_BID = P_MAX / FCR_GAIN
-    BATTERY_CAP = 40.0 # kWh
+    BATTERY_CAP = 46.0 # kWh
 
     # Power profile (kW) = P_BID * y_red
     # Note: y_red is p.u. (1.0 = full activation)

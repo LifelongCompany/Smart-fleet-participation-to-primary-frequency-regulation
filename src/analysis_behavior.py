@@ -43,7 +43,7 @@ def process_behavior(output_dir='images'):
 
     driving_df['PARKING_DURATION_H'] = (driving_df['NEXT_START'] - driving_df['STOP']).dt.total_seconds() / 3600.0
 
-    BATTERY_CAP = 40.0
+    BATTERY_CAP = 46.0
     AC_POWER = 7.0
 
     # Energy required to reach 100%

@@ -26,6 +26,12 @@ class SimulationCore:
         tiled_f = np.resize(f_val, required)
         self.y_red = 5.0 * tiled_f
 
+        # Physics Params
+        self.BATTERY_CAP = 46.0 # kWh
+        self.P_MAX = 7.0 # kW
+        self.P_BID = 7.0 / 1.1
+        self.R_INTERNAL = 0.0
+
         # Fleet Setup
         self.cars = self._setup_cars()
         self.n_cars = len(self.cars)
@@ -34,12 +40,6 @@ class SimulationCore:
         # Interpolators
         self._setup_obc()
 
-        # Physics Params
-        self.BATTERY_CAP = 40.0 # kWh
-        self.P_MAX = 7.0 # kW
-        self.P_BID = 7.0 / 1.1
-        self.R_INTERNAL = 0.1
-
     def _setup_cars(self):
         df = self.driving_df.sort_values(['ID', 'START'])
         df['NEXT_START'] = df.groupby('ID')['START'].shift(-1)
@@ -47,7 +47,7 @@ class SimulationCore:
         df['SOC_STOP'] = df['SOC_STOP']
 
         df['PARKING_DURATION_H'] = (df['NEXT_START'] - df['STOP']).dt.total_seconds() / 3600.0
-        df['E_REQ'] = (100 - df['SOC_STOP']) / 100.0 * 40.0
+        df['E_REQ'] = (100 - df['SOC_STOP']) / 100.0 * self.BATTERY_CAP
 
         def check_ac(row):
             if pd.isna(row['PARKING_DURATION_H']) or row['PARKING_DURATION_H'] <= 0: return False
@@ -227,7 +227,7 @@ class SimulationCore:
                     safe_eta[safe_eta < 1e-6] = 1e-6
                     p_term[mask_dis] = (np.abs(p_cmd[mask_dis]) / safe_eta) * 1000.0
 
-                    ocv = 300.0 + (soc_start * 1.0)
+                    ocv = 360.0 + (soc_start * 0.85)
                     i_amps = solve_current(p_term, ocv, self.R_INTERNAL)
                     i_amps = np.nan_to_num(i_amps)
 
