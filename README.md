@@ -26,6 +26,7 @@
 ## Part 2: Smart Dispatch Strategy
 
 **Q5:**
+
 - **Uniform Strategy Efficiency:**
   Under the Uniform Strategy, the average fleet efficiency is calculated to be **85.91%**. This is limited because many vehicles operate at low partial loads where the OBC efficiency is poor.
 
