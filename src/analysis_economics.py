@@ -23,7 +23,7 @@ def run_economics(output_dir='images'):
     P_MAX = 7.0
     FCR_GAIN = 1.1
     P_BID_CAR = P_MAX / FCR_GAIN # kW
-    C_CONS = 0.15 # kWh/km (Assumed)
+    C_CONS = 0.2 # kWh/km (Assumed)
 
     # Pre-process Residual Value Interpolator
     # Check column names

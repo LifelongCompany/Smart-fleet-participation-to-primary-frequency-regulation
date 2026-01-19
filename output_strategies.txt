@@ -1,0 +1,1 @@
+{'q5_eta_uniform': np.float64(0.8687187051477472), 'q6_eta_limit': np.float64(0.9723299569571427), 'q6_n0': 5, 'q6_p_opt': np.float64(4.713813813813814), 'q7_t_op_uniform': np.float64(0.9972819593787335), 'q7_t_op_limit': np.float64(0.1058778727194978), 'q7_n0': 7}

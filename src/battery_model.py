@@ -9,6 +9,10 @@ def solve_current(power_watts, ocv_volts, r_ohms):
     Returns: Current I (Amps).
              Returns NaN if power is too high (complex root).
     """
+    # Handle Negligible Resistance (R=0)
+    if np.abs(r_ohms) < 1e-9:
+        return power_watts / ocv_volts
+
     # R*I^2 - OCV*I + P = 0
     # Discriminant delta = OCV^2 - 4*R*P
     delta = ocv_volts**2 - 4 * r_ohms * power_watts
