@@ -1,82 +1,100 @@
-# FCR Simulation Report
+
+# FCR Participation Report (Full Month Simulation)
+
+Initializing Simulation Core for Jan 2021...
 
 ## Part 1: Grid Frequency Data & Basic Analysis
-**Q1: Reduced Regulating Power Distribution**
-![Q1 Distribution](images/q1_reduced_power_dist.png)
 
-**Q2: Magnitude Observations**
-- Mean: 0.0015 p.u.
-- Max Positive: 0.6475 p.u.
-- Max Negative: -0.5525 p.u.
-- % Time at Full Power: 0.00%
-Observation: The signal rarely saturates, staying mostly within +/- 0.6 p.u.
+**Q1: Distribution of Regulating Power**
+![Q1 Distribution](images/q1_distribution.png)
+- The regulating power signal is derived from frequency deviation: $P_{reg}^{p.u.} = 5 \times (f - 50)$, clipped to [-1, 1].
 
-**Q3: Rolling SOC Deviation**
-![Q3 Deviation](images/q3_rolling_soc_deviation.png)
+**Q2: Observations**
+- The distribution is centered around 0 but exhibits a spread corresponding to frequency deviations.
+- The magnitude rarely reaches full power ($\pm 1$ p.u.), staying mostly within $\pm 0.4$ p.u.
 
-**Q4: Feasibility**
-- Max 24h Energy Drift: 7.44 kWh
-- Battery Capacity: 40.0 kWh
-- Conclusion: Feasible (Drift < 20% of capacity).
+**Q3: Single EV SOC Deviation**
+![Q3 SOC Deviation](images/q3_soc_deviation.png)
+- **4h Window**: Median=0.17%, 90% Interval=[-3.03%, 3.07%]
+- **8h Window**: Median=0.43%, 90% Interval=[-5.24%, 4.73%]
+- **12h Window**: Median=0.77%, 90% Interval=[-7.26%, 6.29%]
+- **24h Window**: Median=1.60%, 90% Interval=[-11.46%, 10.90%]
+
+**Q4: Reasonability**
+- For short windows (4h), the SOC deviation is relatively small (< 10%).
+- For 24h windows, the deviation can grow significantly. Without active energy management (recharging), continuous FCR participation carries a risk of depleting the battery or reaching full charge.
+
 
 ## Part 2: Smart Dispatch Strategy
-**Q5: Uniform Strategy Efficiency**
-- Efficiency: 86.87%
 
-**Q6: Smart Strategy Limits**
-- Theoretical Limit (N->inf): 97.23%
-- N0 (90% Benefit): 5 EVs
-![Q6 Convergence](images/q6_efficiency_convergence.png)
+**Q5: Uniform Strategy Efficiency**
+- Calculated Average Efficiency: **80.39%**
+
+**Q6: Smart Strategy Efficiency & Convergence**
+![Q6 Efficiency](images/q6_efficiency.png)
+- Smart Limit ($N \to \infty$): **97.23%**
+- Fleet size to achieve 90% of gain ($N_0$): **5 vehicles**
 
 **Q7: OBC Operating Time**
-- Uniform Operating Time: 99.73%
-- Smart Limit Time: 10.59%
-- N0 (90% Benefit): 7 EVs
+- Theoretical Limit ($t_{op}^{\infty}$): **0.0713 p.u.**
+![Q7 Operating Time](images/q7_operating_time.png)
+- Fleet size for 90% reduction ($N_0$): **10 vehicles**
 
-## Part 3: Driving & Charging Behavior
-**Q8: AC/DC Inference**
-- Logic applied: 7kW threshold check.
 
-**Q9: Coincidence Factors**
-![Q9 Coincidence](images/q9_coincidence_factor_week.png)
+## Part 3: Driving & Charging Behaviour
 
-**Q10: Start vs End Analysis**
-- Start Year Avg Availability: 45.4
-- End Year Avg Availability: 68.0
-- Analysis: Comparison showing potential boundary effects or seasonal drift.
+**Q8: Charging Inference Logic**
+- If `Trip Energy / 7kW <= Parking Duration`: Assume **AC Charging** (V2G available).
+- Else: Assume **DC Charging** (V2G not available).
+
+**Q9: Coincidence Factor**
+![Q9 Availability](images/q9_availability.png)
+
+**Q10: Comparison / Limitations**
+- Inferring charging from driving has limitations, especially at the year boundaries.
+- However, using looped data allows reasonable estimation.
+
 
 ## Part 4: FCR Revenues
-**Q11: Revenue (Jan 2021)**
-- 1-Hour Blocks: 70.53 EUR/EV
-- 4-Hour Blocks: 16.92 EUR/EV
+
+**Q11: Monthly Revenue**
+- FCR Price: 18.0 EUR/MW/h
+- Total Fleet Revenue (1h Blocks): **10527.30 EUR**
+- Revenue per EV (1h Blocks): **70.18 EUR/EV**
+- Revenue per EV (4h Blocks): **67.24 EUR/EV**
 
 **Q12: Virtual Mileage**
-- Average Virtual Mileage: 2048.59 km/month
+- Energy Throughput per EV: **371.32 kWh**
+- Virtual Mileage: **1856.61 km**
 
 **Q13: Residual Value Loss**
-![Q13 Economics](images/q13_economics.png)
-- Est. Loss (at 5k base): 0.16 EUR/month
-- Net Revenue (4h, 5k base): 16.76 EUR/month
+- Estimated Residual Value Loss: **16.34 EUR**
+- Net Revenue: **53.84 EUR**
 
-## Part 5 & 6: Simulation & Aging
-**Q14: Simulation Results**
-Simulations completed for Uniform/Smart strategies and 1h/4h blocks (Duration: 1 Week).
-Sample SOC Trace (Uniform 1h):
-![SOC Trace](images/soc_trace_unif_1h.png)
+
+## Part 5: Full Simulation Results
+
+**Q14: SOC Profiles & Scenarios**
+Running Baseline (No FCR)...
+Running Scenario: uniform_1h...
+![SOC uniform_1h](images/q14_soc_uniform_1h.png)
+Running Scenario: smart_1h...
+![SOC smart_1h](images/q14_soc_smart_1h.png)
+Running Scenario: uniform_4h...
+![SOC uniform_4h](images/q14_soc_uniform_4h.png)
+Running Scenario: smart_4h...
+![SOC smart_4h](images/q14_soc_smart_4h.png)
+
+
+## Part 6: Battery Aging
 
 **Q15: Battery Model**
-- Thevenin Model implemented (Voltage/Current solver).
+- $V_{oc} = 360 + 0.85 \times SOC$
+- $I = P_{term} / V_{oc}$ (Assuming negligible internal resistance)
 
-**Q16: Aging Comparison (Total Loss per Fleet)**
-| Scenario | Cycling Loss (p.u.) | Calendar Loss (p.u.) | Total Loss (p.u.) | vs No FCR |
-|---|---|---|---|---|
-| no_fcr | 2.286250 | 0.040615 | 2.326865 | +0.00% |
-| unif_1h | 2.468147 | 0.039725 | 2.507872 | +7.78% |
-| smart_1h | 2.591132 | 0.040063 | 2.631194 | +13.08% |
-| unif_4h | 2.464151 | 0.039721 | 2.503872 | +7.61% |
-| smart_4h | 2.581209 | 0.040085 | 2.621294 | +12.65% |
-
-**Conclusion:**
-- The simulation indicates that **unif_1h** results in the lowest battery aging.
-- Uniform Strategy reduces aging, likely because spreading the load results in lower currents, which is beneficial for the battery (Aging is convex with respect to Current).
-- However, Smart Strategy significantly reduces OBC operating time (see Q7), which may benefit power electronics lifetime.
+**Q16: Aging Evaluation**
+- **Baseline Aging**: 5.104549% degradation
+- **uniform_1h**: 5.708895% (+11.84%)
+- **smart_1h**: 6.179504% (+21.06%)
+- **uniform_4h**: 5.698602% (+11.64%)
+- **smart_4h**: 6.149320% (+20.47%)
